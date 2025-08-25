@@ -3,7 +3,7 @@ This is a port of [HyDE](https://github.com/HyDE-Project/HyDE) for Debian since 
 This isn't a complete Readme, so go to their repo (linked above) instead.
 
 ## Progress
-1%
+10%
 
 - [ ] modifing install scripts
 - [ ] syncing to upstream HyDE
