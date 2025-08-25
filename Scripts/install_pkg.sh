@@ -15,11 +15,8 @@ fi
 flg_DryRun=${flg_DryRun:-0}
 export log_section="package"
 
-"${scrDir}/install_aur.sh" "${getAur}" 2>&1
-chk_list "aurhlpr" "${aurList[@]}"
 listPkg="${1:-"${scrDir}/pkg_core.lst"}"
-archPkg=()
-aurhPkg=()
+aptPkg=()
 ofs=$IFS
 IFS='|'
 
@@ -59,12 +56,8 @@ while read -r pkg deps; do
     if pkg_installed "${pkg}"; then
         print_log -y "[skip] " "${pkg}"
     elif pkg_available "${pkg}"; then
-        repo=$(pacman -Si "${pkg}" | awk -F ': ' '/Repository / {print $2}' | tr '\n' ' ')
-        print_log -b "[queue] " "${pkg}" -b " :: " -g "${repo}"
-        archPkg+=("${pkg}")
-    elif aur_available "${pkg}"; then
-        print_log -b "[queue] " "${pkg}" -b " :: " -g "aur"
-        aurhPkg+=("${pkg}")
+        print_log -b "[queue] " "${pkg}"
+        aptPkg+=("${pkg}")
     else
         print_log -r "[error] " "unknown package ${pkg}..."
     fi
@@ -74,22 +67,23 @@ IFS=${ofs}
 
 install_packages() {
     local -n pkg_array=$1
-    local pkg_type=$2
-    local install_cmd=$3
-
+    
     if [[ ${#pkg_array[@]} -gt 0 ]]; then
-        print_log -b "[install] " "$pkg_type packages..."
+        print_log -b "[install] " "packages..."
         if [ "${flg_DryRun}" -eq 1 ]; then
             for pkg in "${pkg_array[@]}"; do
                 print_log -b "[pkg] " "${pkg}"
             done
         else
-            $install_cmd ${use_default:+"$use_default"} -S "${pkg_array[@]}"
+            sudo apt install -y "${pkg_array[@]}"
         fi
     fi
+    sudo bash "${cpistDir}"/install_satty.sh
+    sudo bash "${cpistDir}"/install_hyprland.sh
+    sudo bash "${cpistDir}"/install_hypr_others
+    sudo bash "${cpistDir}"/install_swww
 }
 
 echo ""
-install_packages archPkg "arch" "sudo pacman"
+install_packages aptPkg
 echo ""
-install_packages aurhPkg "aur" "${aurhlpr}"

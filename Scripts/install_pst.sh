@@ -1,11 +1,10 @@
 #!/usr/bin/env bash
 #|---/ /+--------------------------------------+---/ /|#
-#|--/ /-| Script to apply post install configs |--/ /-|#
+#|--/ /-| Script to apply post install configs |--/ /|#
 #|-/ /--| Prasanth Rangan                      |-/ /--|#
 #|/ /---+--------------------------------------+/ /---|#
 
 scrDir=$(dirname "$(realpath "$0")")
-# shellcheck disable=SC1091
 if ! source "${scrDir}/global_fn.sh"; then
     echo "Error: unable to source global_fn.sh..."
     exit 1
@@ -67,19 +66,7 @@ fi
 
 # flatpak
 if ! pkg_installed flatpak; then
-    echo ""
-    print_log -g "[FLATPAK]" -b " list :: " "flatpak application"
-    awk -F '#' '$1 != "" {print "["++count"]", $1}' "${scrDir}/extra/custom_flat.lst"
-    prompt_timer 60 "Install these flatpaks? [Y/n]"
-    fpkopt=${PROMPT_INPUT,,}
-
-    if [ "${fpkopt}" = "y" ]; then
-        print_log -g "[FLATPAK]" -b " install :: " "flatpaks"
-        [ ${flg_DryRun} -eq 1 ] || "${scrDir}/extra/install_fpk.sh"
-    else
-        print_log -y "[FLATPAK]" -b " skip :: " "flatpak installation"
-    fi
-
+    sudo apt install -y flatpak
 else
     print_log -y "[FLATPAK]" -b " :: " "flatpak is already installed"
 fi

@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+
+git clone https://github.com/hyprwm/hyprlock
+cd hyprlock
+cmake --no-warn-unused-cli -DCMAKE_BUILD_TYPE:STRING=Release -S . -B ./build
+cmake --build ./build --config Release --target hyprlock -j`nproc 2>/dev/null || getconf _NPROCESSORS_CONF`
+sudo cmake --install build
+
+cd ../
+
+git clone https://github.com/hyprwm/hyprpicker
+cd hyprpicker
+cmake --no-warn-unused-cli -DCMAKE_BUILD_TYPE:STRING=Release -DCMAKE_INSTALL_PREFIX:PATH=/usr -S . -B ./build
+cmake --build ./build --config Release --target hyprpicker -j`nproc 2>/dev/null || getconf _NPROCESSORS_CONF`
+cmake --install ./build
+
+cd ../
+
+wget --content-disposition https://archlinux.org/packages/extra/x86_64/hyprsunset/download/
+mkdir hyprsunset
+mv hyprsunset-*.zst hyprpicker/
+cd hyprsunset
+tar -xf hyprsunset-*.zst
+rm *.zst
+sudo mv ./usr/bin/hyprsunset /usr/local/bin/
+
+cd ../
+
+git clone https://github.com/hyprwm/hypridle
+cd hypridle
+cmake --no-warn-unused-cli -DCMAKE_BUILD_TYPE:STRING=Release -DCMAKE_INSTALL_PREFIX:PATH=/usr -S . -B ./build
+cmake --build ./build --config Release --target all -j`nproc 2>/dev/null || getconf NPROCESSORS_CONF`
+sudo cmake --install build
+
+cd ../
+
+sudo rm -rf hyprlock hyprpicker hyprsunset hypridle
